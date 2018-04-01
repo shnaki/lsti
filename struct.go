@@ -76,7 +76,7 @@ type Child struct {
 // Parent represents the parent information (e.g. Keyword Processing).
 type Parent struct {
 	Data
-	Children []*Child `json:"children"`
+	Children []*Child
 }
 
 // AddChild adds child data, and register path to Schema.
