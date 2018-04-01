@@ -45,7 +45,7 @@ func (cli *CLI) Run(args []string) int {
 	parser.Name = Name
 	parser.Usage = `[OPTIONS] [FILE]...
 
-List timing information parsed from LS-DYNA message file(s) (e.g. messag, mes****).
+List timing information parsed from LS-DYNA message file(s) (e.g. messag, mes****)
 
 Example:
 lsti messag
