@@ -49,7 +49,8 @@ List timing information parsed from LS-DYNA message file(s) (e.g. messag, mes***
 
 Example:
 lsti messag
-lsti ./**/mes** -o csv -f timigns.csv
+lsti ./**/mes* -o csv -f timigns.csv
+lsti ./**/mes* --query "[].{path:File, elem:ElementProcessing}"
   `
 
 	// TODO(tenchanome) Implement error handling.
