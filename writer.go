@@ -36,7 +36,7 @@ func (cli *CLI) Write(schema *Schema, records []*Record) error {
 	}
 	switch opts.Out.Output {
 	case "json":
-		str = string(data)
+		str = string(data) + "\n"
 	case "csv":
 		str = cli.FormatSeparatedValues(data, schema, ',', true)
 	case "tsv":
@@ -44,7 +44,9 @@ func (cli *CLI) Write(schema *Schema, records []*Record) error {
 	}
 
 	// Print to stdout.
-	fmt.Fprintln(cli.outStream, str)
+	if !opts.Out.Quiet {
+		fmt.Fprint(cli.outStream, str)
+	}
 
 	// Write to file.
 	filename := opts.Out.File

@@ -29,7 +29,7 @@ type Output struct {
 	File   string `short:"f" long:"file" description:"Output file path"`
 	Output string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"json"`
 	Query  string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
-	Quiet  string `short:"q" long:"quiet" description:"Suppress all normal output"`
+	Quiet  bool   `short:"q" long:"quiet" description:"Suppress all normal output"`
 }
 
 // CLI is the command line object.
