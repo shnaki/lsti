@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 // ParseMessageFiles parses LS-DYNA message files (e.g. messag, mes****) and return Records.
 func (cli *CLI) ParseMessageFiles(files []string) (*Schema, []*Record, error) {
+	sort.Strings(files)
 	var records []*Record
 	schema := Schema{}
 	for _, file := range files {
