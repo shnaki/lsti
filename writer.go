@@ -32,7 +32,7 @@ func (cli *CLI) Write(schema *Schema, records []*Record) error {
 	// Format output string to specified format.
 	str := ""
 	if len(records) != 1 {
-		schema.Formatter = append([]string{"file"}, schema.Formatter...)
+		schema.Formatter = append([]string{"File"}, schema.Formatter...)
 	}
 	switch opts.Out.Output {
 	case "json":
@@ -60,7 +60,11 @@ func (cli *CLI) Write(schema *Schema, records []*Record) error {
 func (cli *CLI) Query(data []byte, expression string) ([]byte, error) {
 	var d interface{}
 	json.Unmarshal(data, &d)
-	result, err := jmespath.Search(expression, d)
+	jp, err := jmespath.Compile(expression)
+	if err != nil {
+		return nil, err
+	}
+	result, err := jp.Search(d)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +83,7 @@ func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []map[string
 	var ds []map[string]interface{}
 	for _, record := range records {
 		data := make(map[string]interface{})
-		data["file"] = record.File
+		data["File"] = record.File
 		record.ForEachData(func(d interface{}, _ int) {
 			if p, ok := d.(*Parent); ok {
 				data[p.Path] = p.GetValue(dataType)
@@ -109,7 +113,11 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 	if withKeys {
 		var keys []string
 		for _, format := range schema.Formatter {
-			elements := strings.Split(format, "#")
+			originalFormat := schema.Names[format]
+			if originalFormat != "" {
+				format = originalFormat
+			}
+			elements := strings.Split(format, "/")
 			key := ""
 			if len(elements) == 1 {
 				key = elements[0]

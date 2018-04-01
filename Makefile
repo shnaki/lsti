@@ -13,6 +13,7 @@ setup:
 	go get github.com/Songmu/make2help/cmd/make2help
 deps:
 	$(GOGET) github.com/jessevdk/go-flags
+	$(GOGET) github.com/jmespath/go-jmespath
 	$(GOGET) github.com/mattn/go-zglob
 
 all: test build
