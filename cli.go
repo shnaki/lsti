@@ -53,7 +53,6 @@ lsti ./**/mes* -o csv -f timigns.csv
 lsti ./**/mes* --query "[].{path:File, elem:ElementProcessing}"
   `
 
-	// TODO(tenchanome) Implement error handling.
 	arguments, err := parser.Parse()
 	if err != nil {
 		fmt.Fprintln(cli.errStream, err)
@@ -92,7 +91,6 @@ lsti ./**/mes* --query "[].{path:File, elem:ElementProcessing}"
 	schema, records, _ := cli.ParseMessageFiles(files)
 
 	// Output parsed data in specified format.
-	// TODO(tenchanome) Implement error handling.
 	if err := cli.Write(schema, records); err != nil {
 		fmt.Fprintln(cli.errStream, err)
 		return ExitCodeError
