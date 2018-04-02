@@ -15,6 +15,7 @@ deps:
 	$(GOGET) github.com/jessevdk/go-flags
 	$(GOGET) github.com/jmespath/go-jmespath
 	$(GOGET) github.com/mattn/go-zglob
+	$(GOGET) github.com/olekukonko/tablewriter
 
 all: test build
 build:

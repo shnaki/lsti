@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jmespath/go-jmespath"
+	"github.com/olekukonko/tablewriter"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -41,6 +42,8 @@ func (cli *CLI) Write(schema *Schema, records []*Record) error {
 		str = cli.FormatSeparatedValues(data, schema, ',', true)
 	case "tsv":
 		str = cli.FormatSeparatedValues(data, schema, '	', false)
+	case "table":
+		str = cli.FormatTable(data, schema)
 	}
 
 	// Print to stdout.
@@ -113,29 +116,73 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 
 	// Write keys.
 	if withKeys {
-		var keys []string
-		for _, format := range schema.Formatter {
-			originalFormat := schema.Names[format]
-			if originalFormat != "" {
-				format = originalFormat
-			}
-			elements := strings.Split(format, "/")
-			key := ""
-			if len(elements) == 1 {
-				key = elements[0]
-			} else {
-				key = elements[1]
-			}
-			keys = append(keys, key)
-		}
+		keys := cli.GetKeys(schema)
 		writer.Write(keys)
 	}
 
 	// Write values.
+	rows := cli.GetData(ds, schema)
+	for _, values := range rows {
+		writer.Write(values)
+	}
+
+	writer.Flush()
+	str = buf.String()
+	return str
+}
+
+// FormatTable formats output data to ASCII table format.
+func (cli *CLI) FormatTable(data []byte, schema *Schema) string {
+	str := ""
+	var ds interface{}
+	json.Unmarshal(data, &ds)
+
+	buf := new(bytes.Buffer)
+
+	// Set header.
+	keys := cli.GetKeys(schema)
+
+	table := tablewriter.NewWriter(buf)
+	table.SetHeader(keys)
+	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+	table.SetCenterSeparator("|")
+
+	// Set data.
+	rows := cli.GetData(ds, schema)
+	table.AppendBulk(rows)
+
+	table.Render()
+	str = buf.String()
+	return str
+}
+
+// GetKeys returns a slice of keys.
+func (cli *CLI) GetKeys(schema *Schema) []string {
+	var keys []string
+	for _, format := range schema.Formatter {
+		originalFormat := schema.Names[format]
+		if originalFormat != "" {
+			format = originalFormat
+		}
+		elements := strings.Split(format, "/")
+		key := ""
+		if len(elements) == 1 {
+			key = elements[0]
+		} else {
+			key = elements[1]
+		}
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+// GetData returns table data.
+func (cli *CLI) GetData(ds interface{}, schema *Schema) [][]string {
+	var data [][]string
 	if s, ok := ds.([]interface{}); ok {
-		for _, data := range s {
+		for _, d := range s {
 			var values []string
-			if m, ok := data.(map[string]interface{}); ok {
+			if m, ok := d.(map[string]interface{}); ok {
 				for _, key := range schema.Formatter {
 					val := m[key]
 					if val == nil {
@@ -145,10 +192,8 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 					values = append(values, strValue)
 				}
 			}
-			writer.Write(values)
+			data = append(data, values)
 		}
 	}
-	writer.Flush()
-	str = buf.String()
-	return str
+	return data
 }
