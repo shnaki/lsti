@@ -9,7 +9,6 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
 // Write outputs result to stdout and file.
@@ -135,7 +134,7 @@ func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []*JsonOut {
 // FormatSeparatedValues formats output data to CSV (with keys) or TSV (without keys) format.
 func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator rune, withKeys bool) string {
 	str := ""
-	var ds interface{}
+	var ds []map[string]interface{}
 	json.Unmarshal(data, &ds)
 
 	buf := new(bytes.Buffer)
@@ -144,7 +143,7 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 
 	// Write keys.
 	if withKeys {
-		keys := cli.GetKeys(schema)
+		keys := cli.GetKeys(schema, ds)
 		writer.Write(keys)
 	}
 
@@ -162,13 +161,13 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 // FormatTable formats output data to ASCII table format.
 func (cli *CLI) FormatTable(data []byte, schema *Schema) string {
 	str := ""
-	var ds interface{}
+	var ds []map[string]interface{}
 	json.Unmarshal(data, &ds)
 
 	buf := new(bytes.Buffer)
 
 	// Set header.
-	keys := cli.GetKeys(schema)
+	keys := cli.GetKeys(schema, ds)
 
 	table := tablewriter.NewWriter(buf)
 	table.SetHeader(keys)
@@ -185,23 +184,58 @@ func (cli *CLI) FormatTable(data []byte, schema *Schema) string {
 }
 
 // GetKeys returns a slice of keys.
-func (cli *CLI) GetKeys(schema *Schema) []string {
-	var keys []string
-	for _, format := range schema.Formatter {
-		originalFormat := schema.Names[format]
-		if originalFormat != "" {
-			format = originalFormat
+func (cli *CLI) GetKeys(schema *Schema, ds []map[string]interface{}) []string {
+	//var keys []string
+
+	schema.Formatter = make([]string, 0)
+	forEachKey(ds, func(key string, value interface{}, nodeType int) {
+		switch nodeType {
+		case FIELD:
+			schema.AddPath(schema.normalizePath(key))
+		case PARENT:
+			schema.AddPath(schema.normalizePath(key))
+		case CHILD:
+			schema.AddPath(schema.normalizePath(key))
 		}
-		elements := strings.Split(format, "/")
-		key := ""
-		if len(elements) == 1 {
-			key = elements[0]
-		} else {
-			key = elements[1]
+	})
+	return schema.Formatter
+}
+
+const (
+	FIELD = iota
+	PARENT
+	CHILD
+)
+
+func forEachKey(ds []map[string]interface{}, cb func(key string, value interface{}, nodeType int)) {
+	for _, d := range ds {
+		for key, value := range d {
+			switch value.(type) {
+			case string:
+				cb(key, value, FIELD)
+			case []interface{}:
+				if timings, ok := value.([]interface{}); ok {
+					for _, timing := range timings {
+						if t, ok := timing.(map[string]interface{}); ok {
+							pn := fmt.Sprint(t["name"])
+							pv := fmt.Sprint(t["value"])
+							cb(pn, pv, PARENT)
+							d := t["details"]
+							if details, ok := d.([]interface{}); ok {
+								for _, detail := range details {
+									if t, ok := detail.(map[string]interface{}); ok {
+										cn := fmt.Sprint(t["name"])
+										cv := fmt.Sprint(t["value"])
+										cb(cn, cv, CHILD)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-		keys = append(keys, key)
 	}
-	return keys
 }
 
 // GetData returns table data.
