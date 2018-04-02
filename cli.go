@@ -29,7 +29,7 @@ type Output struct {
 	Output string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"table"`
 	Query  string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
 	Quiet  bool   `short:"q" long:"quiet" description:"Suppress all normal output"`
-	Target string `short:"t" long:"target" description:"Target value used for aggregation"choice:"cpusec" choice:"pcpu" choice:"clocksec" choice:"pclock" default:"clocksec"`
+	Target string `short:"t" long:"target" description:"Target value used for aggregation" choice:"cpusec" choice:"pcpu" choice:"clocksec" choice:"pclock" default:"clocksec"`
 }
 
 // CLI is the command line object.
