@@ -25,7 +25,7 @@ type Misc struct {
 }
 
 type Output struct {
-	File    string `short:"f" long:"file" description:"Output file path"`
+	File    string `short:"f" long:"file" description:"Output file path\nNote that stdout is not suppressed\nSee also \"-q, --quiet\""`
 	Output  string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"table"`
 	Query   string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
 	Quiet   bool   `short:"q" long:"quiet" description:"Suppress all normal output"`
