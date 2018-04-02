@@ -60,7 +60,13 @@ lsti ./**/mes* --query "[].{path:File, elem:ElementProcessing}"
 		return ExitCodeError
 	}
 
-	// If arguments' length is zero or "-h, --help" flag is specified, show help and exit.
+	// If arguments' length is zero, show help and exit with error.
+	if len(arguments) == 0 {
+		parser.WriteHelp(os.Stdout)
+		return ExitCodeError
+	}
+
+	// If "-h, --help" flag is specified, show help and exit.
 	if len(arguments) == 0 || opts.Misc.Help {
 		parser.WriteHelp(os.Stdout)
 		return ExitCodeOK
