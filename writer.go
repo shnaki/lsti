@@ -82,26 +82,54 @@ func (cli *CLI) Query(data []byte, expression string) ([]byte, error) {
 	return data, nil
 }
 
-// NormalizeRecords normalizes records for json.
-func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []map[string]interface{} {
+// A JsonOut stores data for json.MarshalIndent.
+type JsonOut struct {
+	File    string    `json:"file"`
+	Timings []*Timing `json:"timings"`
+}
+
+// A Timing represents timing information struct that has parent-child relationship for json MarshalIndent.
+type Timing struct {
+	JsonData
+	Details []*JsonData `json:"details"`
+}
+
+// A JsonData represents general data struct for json MarshalIndent.
+type JsonData struct {
+	Name  string  `json:"name"`
+	Value float64 `json:"value"`
+}
+
+// NormalizeRecords normalizes records for json output.
+func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []*JsonOut {
 	dataType := opts.Out.Target
-	var ds []map[string]interface{}
+	var jsonSet []*JsonOut
 	for _, record := range records {
-		data := make(map[string]interface{})
-		data["File"] = record.File
+		jsonOut := JsonOut{}
+		jsonOut.File = record.File
+		jsonOut.Timings = make([]*Timing, 0)
+		var pt *Timing
 		record.ForEachData(func(d interface{}, _ int) {
 			if p, ok := d.(*Parent); ok {
-				data[p.Path] = p.GetValue(dataType)
+				timing := Timing{}
+				timing.Name = p.Name
+				timing.Value = p.GetValue(dataType)
+				timing.Details = make([]*JsonData, 0)
+				pt = &timing
+				jsonOut.Timings = append(jsonOut.Timings, &timing)
 				return
 			}
 			if c, ok := d.(*Child); ok {
-				data[c.Path] = c.GetValue(dataType)
+				js := JsonData{}
+				js.Name = c.Name
+				js.Value = c.GetValue(dataType)
+				pt.Details = append(pt.Details, &js)
 				return
 			}
 		})
-		ds = append(ds, data)
+		jsonSet = append(jsonSet, &jsonOut)
 	}
-	return ds
+	return jsonSet
 }
 
 // FormatSeparatedValues formats output data to CSV (with keys) or TSV (without keys) format.
