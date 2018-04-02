@@ -84,7 +84,7 @@ func (cli *CLI) Query(data []byte, expression string) ([]byte, error) {
 
 // NormalizeRecords normalizes records to array of map.
 func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []map[string]interface{} {
-	dataType := opts.Out.Data
+	dataType := opts.Out.Target
 	var ds []map[string]interface{}
 	for _, record := range records {
 		data := make(map[string]interface{})
