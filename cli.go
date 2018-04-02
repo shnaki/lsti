@@ -21,15 +21,16 @@ var opts struct {
 
 type Misc struct {
 	Help    bool `short:"h" long:"help" description:"Show this help message and exit"`
-	Version bool `short:"v" long:"version" description:"Show version information and exit"`
+	Version bool `short:"V" long:"version" description:"Show version information and exit"`
 }
 
 type Output struct {
-	File   string `short:"f" long:"file" description:"Output file path"`
-	Output string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"table"`
-	Query  string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
-	Quiet  bool   `short:"q" long:"quiet" description:"Suppress all normal output"`
-	Target string `short:"t" long:"target" description:"Target value used for aggregation" choice:"cpusec" choice:"pcpu" choice:"clocksec" choice:"pclock" default:"clocksec"`
+	File    string `short:"f" long:"file" description:"Output file path"`
+	Output  string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"table"`
+	Query   string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
+	Quiet   bool   `short:"q" long:"quiet" description:"Suppress all normal output"`
+	Target  string `short:"t" long:"target" description:"Target value used for aggregation" choice:"cpusec" choice:"pcpu" choice:"clocksec" choice:"pclock" default:"clocksec"`
+	Verbose []bool `short:"v" long:"verbose" description:"Show verbose information, this option can be specified multiple times\n-v: Show message file path \n-vv Show LS-DYNA module information\n-vvv: Show other execution environment"`
 }
 
 // CLI is the command line object.

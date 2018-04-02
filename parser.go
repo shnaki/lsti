@@ -41,6 +41,54 @@ func (cli *CLI) ParseMessageFile(schema *Schema, file string) (*Record, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 
+		// Search for header information.
+		if strings.Contains(line, "Version : ") {
+			record.Version = parseText([]rune(line), 18, 34)
+			record.Date = parseText([]rune(line), 34, 55)
+			continue
+		}
+		if strings.Contains(line, "Revision: ") {
+			record.Revision, _ = parseInt([]rune(line), 18, 34)
+			record.Time = parseText([]rune(line), 34, 55)
+			continue
+		}
+		if strings.Contains(line, "Licensed to: ") {
+			record.LicensedTo = parseText([]rune(line), 21, 55)
+			continue
+		}
+		if strings.Contains(line, "Issued by  : ") {
+			record.IssuedBy = parseText([]rune(line), 21, 55)
+			continue
+		}
+		if strings.Contains(line, "Platform   : ") {
+			record.Platform = parseText([]rune(line), 21, 55)
+			continue
+		}
+		if strings.Contains(line, "OS Level   : ") {
+			record.Os = parseText([]rune(line), 21, 55)
+			continue
+		}
+		if strings.Contains(line, "Compiler   : ") {
+			record.Compiler = parseText([]rune(line), 21, 55)
+			continue
+		}
+		if strings.Contains(line, "Hostname   : ") {
+			record.Hostname = parseText([]rune(line), 21, 55)
+			continue
+		}
+		if strings.Contains(line, "Precision  : ") {
+			record.Precision = parseText([]rune(line), 21, 55)
+			continue
+		}
+		if strings.Contains(line, "SVN Version: ") {
+			record.SvnVersion, _ = parseInt([]rune(line), 21, 55)
+			continue
+		}
+		if strings.Contains(line, "Input file: ") {
+			record.InputFile = parseText([]rune(line), 13, 84)
+			continue
+		}
+
 		// Search for timing information block.
 		if strings.Contains(line, "T i m i n g   i n f o r m a t i o n") {
 			start = true
@@ -62,15 +110,13 @@ func (cli *CLI) ParseMessageFile(schema *Schema, file string) (*Record, error) {
 		}
 
 		// Parse timing information.
-		// TODO(tenchanome) Implement error handling.
 		isParent := !strings.HasPrefix(line, "    ")
 		runes := []rune(line)
 		name := parseName(runes, 0, 25)
-		cpuSec, err1 := parseFloat(runes, 25, 36)
-		cpuPercent, err2 := parseFloat(runes, 36, 44)
-		clockSec, err3 := parseFloat(runes, 44, 59)
-		clockPercent, err4 := parseFloat(runes, 56, 67)
-		_, _, _, _ = err1, err2, err3, err4
+		cpuSec, _ := parseFloat(runes, 25, 36)
+		cpuPercent, _ := parseFloat(runes, 36, 44)
+		clockSec, _ := parseFloat(runes, 44, 59)
+		clockPercent, _ := parseFloat(runes, 56, 67)
 		if isParent {
 			// Parent
 			currentParent = record.AddParent(schema, name, cpuSec, cpuPercent, clockSec, clockPercent)
@@ -85,6 +131,17 @@ func (cli *CLI) ParseMessageFile(schema *Schema, file string) (*Record, error) {
 func parseName(runes []rune, start, end int) string {
 	str := string(runes[start:end])
 	return strings.TrimRight(strings.TrimRight(strings.Trim(str, " "), "."), " ")
+}
+
+func parseText(runes []rune, start, end int) string {
+	str := string(runes[start:end])
+	return strings.Trim(str, " ")
+}
+
+func parseInt(runes []rune, start, end int) (int64, error) {
+	str := string(runes[start:end])
+	str = strings.Trim(str, " ")
+	return strconv.ParseInt(str, 10, 64)
 }
 
 func parseFloat(runes []rune, start, end int) (float64, error) {

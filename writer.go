@@ -81,12 +81,6 @@ func (cli *CLI) Query(data []byte, expression string) ([]byte, error) {
 	return data, nil
 }
 
-// A JsonOut stores data for json.MarshalIndent.
-type JsonOut struct {
-	File    string    `json:"file"`
-	Timings []*Timing `json:"timings"`
-}
-
 // A Timing represents timing information struct that has parent-child relationship for json MarshalIndent.
 type Timing struct {
 	JsonData
@@ -100,13 +94,40 @@ type JsonData struct {
 }
 
 // NormalizeRecords normalizes records for json output.
-func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []*JsonOut {
+func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []interface{} {
+	type jsonOut0 struct {
+		Timings []*Timing `json:"timings"`
+	}
+	type jsonOut1 struct {
+		File    string    `json:"file"`
+		Timings []*Timing `json:"timings"`
+	}
+	type jsonOut2 struct {
+		File     string    `json:"file"`
+		Version  string    `json:"version"`
+		Revision int64     `json:"revision"`
+		Timings  []*Timing `json:"timings"`
+	}
+	type jsonOut3 struct {
+		File       string    `json:"file"`
+		Version    string    `json:"version"`
+		Revision   int64     `json:"revision"`
+		Platform   string    `json:"platform"`
+		Os         string    `json:"os"`
+		Compiler   string    `json:"compiler"`
+		Hostname   string    `json:"hostname"`
+		Precision  string    `json:"precision"`
+		SvnVersion int64     `json:"svnVersion"`
+		InputFile  string    `json:"inputFile"`
+		Timings    []*Timing `json:"timings"`
+	}
+
 	dataType := opts.Out.Target
-	var jsonSet []*JsonOut
+	var jsonSet []interface{}
+	verbosity := len(opts.Out.Verbose)
 	for _, record := range records {
-		jsonOut := JsonOut{}
-		jsonOut.File = record.File
-		jsonOut.Timings = make([]*Timing, 0)
+		var jsonOut interface{}
+		timings := make([]*Timing, 0)
 		var pt *Timing
 		record.ForEachData(func(d interface{}, _ int) {
 			if p, ok := d.(*Parent); ok {
@@ -115,7 +136,7 @@ func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []*JsonOut {
 				timing.Value = p.GetValue(dataType)
 				timing.Details = make([]*JsonData, 0)
 				pt = &timing
-				jsonOut.Timings = append(jsonOut.Timings, &timing)
+				timings = append(timings, &timing)
 				return
 			}
 			if c, ok := d.(*Child); ok {
@@ -126,6 +147,39 @@ func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []*JsonOut {
 				return
 			}
 		})
+
+		switch verbosity {
+		case 0:
+			jsonOut = jsonOut0{
+				Timings: timings,
+			}
+		case 1:
+			jsonOut = jsonOut1{
+				File:    record.File,
+				Timings: timings,
+			}
+		case 2:
+			jsonOut = jsonOut2{
+				File:     record.File,
+				Version:  record.Version,
+				Revision: record.Revision,
+				Timings:  timings,
+			}
+		case 3:
+			jsonOut = jsonOut3{
+				File:       record.File,
+				Version:    record.Version,
+				Revision:   record.Revision,
+				Platform:   record.Platform,
+				Os:         record.Os,
+				Compiler:   record.Compiler,
+				Hostname:   record.Hostname,
+				Precision:  record.Precision,
+				SvnVersion: record.SvnVersion,
+				InputFile:  record.InputFile,
+				Timings:    timings,
+			}
+		}
 		jsonSet = append(jsonSet, &jsonOut)
 	}
 	return jsonSet
