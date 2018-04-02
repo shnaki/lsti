@@ -82,7 +82,7 @@ func (cli *CLI) Query(data []byte, expression string) ([]byte, error) {
 	return data, nil
 }
 
-// NormalizeRecords normalizes records to array of map.
+// NormalizeRecords normalizes records for json.
 func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []map[string]interface{} {
 	dataType := opts.Out.Target
 	var ds []map[string]interface{}
