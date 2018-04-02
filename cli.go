@@ -27,7 +27,7 @@ type Misc struct {
 type Output struct {
 	Data   string `short:"d" long:"data" description:"Data value used for aggregation"choice:"cpusec" choice:"pcpu" choice:"clocksec" choice:"pclock" default:"clocksec"`
 	File   string `short:"f" long:"file" description:"Output file path"`
-	Output string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"json"`
+	Output string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"table"`
 	Query  string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
 	Quiet  bool   `short:"q" long:"quiet" description:"Suppress all normal output"`
 }
