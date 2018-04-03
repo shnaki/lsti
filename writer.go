@@ -31,9 +31,6 @@ func (cli *CLI) Write(schema *Schema, records []*Record) error {
 
 	// Format output string to specified format.
 	str := ""
-	if len(records) != 1 {
-		schema.Formatter = append([]string{"File"}, schema.Formatter...)
-	}
 	switch opts.Out.Output {
 	case "json":
 		str = string(data) + "\n"
@@ -81,57 +78,62 @@ func (cli *CLI) Query(data []byte, expression string) ([]byte, error) {
 	return data, nil
 }
 
-// A Timing represents timing information struct that has parent-child relationship for json MarshalIndent.
-type Timing struct {
+// A RecordData represents record for json MarshalIndent.
+type RecordData struct {
+	Properties []*JsonData   `json:"properties"`
+	Timings    []*TimingData `json:"details"`
+}
+
+// A TimingData represents timing information struct that has parent-child relationship for json MarshalIndent.
+type TimingData struct {
 	JsonData
 	Details []*JsonData `json:"details"`
 }
 
 // A JsonData represents general data struct for json MarshalIndent.
 type JsonData struct {
-	Name  string  `json:"name"`
-	Value float64 `json:"value"`
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
 }
 
 // NormalizeRecords normalizes records for json output.
 func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []interface{} {
-	type jsonOut0 struct {
-		File    string    `json:"file"`
-		Timings []*Timing `json:"timings"`
-	}
-	type jsonOut1 struct {
-		jsonOut0
-		ElapsedTime string `json:"elapsedTime"`
-		Version     string `json:"version"`
-		SvnVersion  int64  `json:"svnVersion"`
-		Platform    string `json:"platform"`
-		Compiler    string `json:"compiler"`
-	}
-	type jsonOut2 struct {
-		jsonOut1
-		Os        string `json:"os"`
-		InputFile string `json:"inputFile"`
-		Hostname  string `json:"hostname"`
-	}
-	type jsonOut3 struct {
-		jsonOut2
-		Revision          int64  `json:"revision"`
-		Precision         string `json:"precision"`
-		LicensedTo        string `json:"licensedTo"`
-		IssuedBy          string `json:"issuedBy"`
-		NormalTermination bool   `json:"normalTermination"`
-	}
-
 	dataType := opts.Out.Target
 	var jsonSet []interface{}
 	verbosity := len(opts.Out.Verbose)
 	for _, record := range records {
-		var jsonOut interface{}
-		timings := make([]*Timing, 0)
-		var pt *Timing
+		var jsonOut RecordData
+
+		// Set properties.
+		properties := make([]*JsonData, 0)
+		properties = append(properties, &JsonData{Name: "file", Value: record.File})
+		if verbosity >= 1 {
+			properties = append(properties, &JsonData{Name: "elapsedTime", Value: record.ElapsedTime})
+			properties = append(properties, &JsonData{Name: "version", Value: record.Version})
+			properties = append(properties, &JsonData{Name: "svnVersion", Value: record.SvnVersion})
+			properties = append(properties, &JsonData{Name: "platform", Value: record.Platform})
+			properties = append(properties, &JsonData{Name: "compiler", Value: record.Compiler})
+		}
+		if verbosity >= 2 {
+			properties = append(properties, &JsonData{Name: "os", Value: record.Os})
+			properties = append(properties, &JsonData{Name: "inputFile", Value: record.InputFile})
+			properties = append(properties, &JsonData{Name: "hostname", Value: record.Hostname})
+		}
+		if verbosity >= 3 {
+			properties = append(properties, &JsonData{Name: "revision", Value: record.Revision})
+			properties = append(properties, &JsonData{Name: "precision", Value: record.Precision})
+			properties = append(properties, &JsonData{Name: "licensedTo", Value: record.LicensedTo})
+			properties = append(properties, &JsonData{Name: "issuedBy", Value: record.IssuedBy})
+			properties = append(properties, &JsonData{Name: "normalTermination", Value: record.NormalTermination})
+		}
+		jsonOut.Properties = properties
+
+		// Set timings.
+		timings := make([]*TimingData, 0)
+		var pt *TimingData
 		record.ForEachData(func(d interface{}, _ int) {
 			if p, ok := d.(*Parent); ok {
-				timing := Timing{}
+				timing := TimingData{}
 				timing.Name = p.Name
 				timing.Value = p.GetValue(dataType)
 				timing.Details = make([]*JsonData, 0)
@@ -147,43 +149,8 @@ func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []interface{
 				return
 			}
 		})
+		jsonOut.Timings = timings
 
-		jso0 := jsonOut0{
-			File:    record.File,
-			Timings: timings,
-		}
-		jsonOut = jso0
-		if verbosity >= 1 {
-			jso1 := jsonOut1{
-				jsonOut0:    jso0,
-				ElapsedTime: record.ElapsedTime,
-				Version:     record.Version,
-				SvnVersion:  record.SvnVersion,
-				Platform:    record.Platform,
-				Compiler:    record.Compiler,
-			}
-			jsonOut = jso1
-			if verbosity >= 2 {
-				jso2 := jsonOut2{
-					jsonOut1:  jso1,
-					Os:        record.Os,
-					InputFile: record.InputFile,
-					Hostname:  record.Hostname,
-				}
-				jsonOut = jso2
-				if verbosity >= 3 {
-					jso3 := jsonOut3{
-						jsonOut2:          jso2,
-						Revision:          record.Revision,
-						Precision:         record.Precision,
-						LicensedTo:        record.LicensedTo,
-						IssuedBy:          record.IssuedBy,
-						NormalTermination: record.NormalTermination,
-					}
-					jsonOut = jso3
-				}
-			}
-		}
 		jsonSet = append(jsonSet, &jsonOut)
 	}
 	return jsonSet
