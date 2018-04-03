@@ -159,7 +159,7 @@ func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []interface{
 // FormatSeparatedValues formats output data to CSV (with keys) or TSV (without keys) format.
 func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator rune, withKeys bool) string {
 	str := ""
-	var ds []map[string]interface{}
+	var ds []*RecordData
 	json.Unmarshal(data, &ds)
 
 	buf := new(bytes.Buffer)
@@ -168,7 +168,7 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 
 	// Write keys.
 	if withKeys {
-		keys := cli.GetKeys(schema, ds)
+		keys := cli.GetKeys(ds)
 		writer.Write(keys)
 	}
 
@@ -186,13 +186,13 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 // FormatTable formats output data to ASCII table format.
 func (cli *CLI) FormatTable(data []byte, schema *Schema) string {
 	str := ""
-	var ds []map[string]interface{}
+	var ds []*RecordData
 	json.Unmarshal(data, &ds)
 
 	buf := new(bytes.Buffer)
 
 	// Set header.
-	keys := cli.GetKeys(schema, ds)
+	keys := cli.GetKeys(ds)
 
 	table := tablewriter.NewWriter(buf)
 	table.SetHeader(keys)
@@ -208,57 +208,98 @@ func (cli *CLI) FormatTable(data []byte, schema *Schema) string {
 	return str
 }
 
-// GetKeys returns a slice of keys.
-func (cli *CLI) GetKeys(schema *Schema, ds []map[string]interface{}) []string {
-	schema.Formatter = make([]string, 0)
-	forEachKey(ds, func(key string, value interface{}, nodeType int) {
-		switch nodeType {
-		case FIELD:
-			schema.AddPath(schema.normalizePath(key))
-		case PARENT:
-			schema.AddPath(schema.normalizePath(key))
-		case CHILD:
-			schema.AddPath(schema.normalizePath(key))
-		}
-	})
-	return schema.Formatter
+// Header stores keys with no duplicate.
+type Header struct {
+	PropertyKeys []string
+	TimingKeys   []*TimingKey
 }
 
-const (
-	FIELD = iota
-	PARENT
-	CHILD
-)
+// TimingKey stores keys with parent-child relationship.
+type TimingKey struct {
+	ParentKey string
+	ChildKeys []string
+}
 
-func forEachKey(ds []map[string]interface{}, cb func(key string, value interface{}, nodeType int)) {
-	for _, d := range ds {
-		for key, value := range d {
-			switch value.(type) {
-			case string:
-				cb(key, value, FIELD)
-			case []interface{}:
-				if timings, ok := value.([]interface{}); ok {
-					for _, timing := range timings {
-						if t, ok := timing.(map[string]interface{}); ok {
-							pn := fmt.Sprint(t["name"])
-							pv := fmt.Sprint(t["value"])
-							cb(pn, pv, PARENT)
-							d := t["details"]
-							if details, ok := d.([]interface{}); ok {
-								for _, detail := range details {
-									if t, ok := detail.(map[string]interface{}); ok {
-										cn := fmt.Sprint(t["name"])
-										cv := fmt.Sprint(t["value"])
-										cb(cn, cv, CHILD)
-									}
-								}
-							}
-						}
-					}
+// AddPropertyKey adds key of properties to header with no duplicate.
+func (header *Header) AddPropertyKey(key string) {
+	found := false
+	for _, p := range header.PropertyKeys {
+		if p == key {
+			found = true
+			break
+		}
+	}
+	if !found {
+		header.PropertyKeys = append(header.PropertyKeys, key)
+	}
+}
+
+// AddParentKey adds key of parent to header with no duplicate.
+func (header *Header) AddParentKey(key string) {
+	found := false
+	for _, p := range header.TimingKeys {
+		if p.ParentKey == key {
+			found = true
+			break
+		}
+	}
+	if !found {
+		header.TimingKeys = append(header.TimingKeys, &TimingKey{ParentKey: key})
+	}
+}
+
+// AddChildKey adds key of child to header with no duplicate.
+func (header *Header) AddChildKey(parentKey, childKey string) {
+	found := false
+	var pt *TimingKey
+	for _, p := range header.TimingKeys {
+		if p.ParentKey == parentKey {
+			pt = p
+			for _, c := range p.ChildKeys {
+				if c == childKey {
+					found = true
+					break
 				}
 			}
 		}
 	}
+	if !found {
+		strings := append(pt.ChildKeys, childKey)
+		pt.ChildKeys = strings
+	}
+}
+
+// GetKeys returns string array of keys.
+func (header *Header) GetKeys() []string {
+	var timingKeys []string
+	for _, timingKey := range header.TimingKeys {
+		timingKeys = append(timingKeys, timingKey.ParentKey)
+		timingKeys = append(timingKeys, timingKey.ChildKeys...)
+	}
+	return append(header.PropertyKeys, timingKeys...)
+}
+
+// GetKeys returns a slice of keys.
+func (cli *CLI) GetKeys(records []*RecordData) []string {
+	var header Header
+
+	// Add property keys.
+	for _, record := range records {
+		for _, property := range record.Properties {
+			header.AddPropertyKey(property.Name)
+		}
+	}
+
+	// Add timing keys.
+	for _, record := range records {
+		for _, timing := range record.Timings {
+			header.AddParentKey(timing.Name)
+			for _, detail := range timing.Details {
+				header.AddChildKey(timing.Name, detail.Name)
+			}
+		}
+	}
+	return header.GetKeys()
 }
 
 // GetData returns table data.
