@@ -167,13 +167,13 @@ func (cli *CLI) FormatSeparatedValues(data []byte, separator rune, withKeys bool
 	writer.Comma = separator
 
 	// Write keys.
+	header := cli.GetHeader(ds)
 	if withKeys {
-		keys := cli.GetKeys(ds)
-		writer.Write(keys)
+		writer.Write(header.GetKeys())
 	}
 
 	// Write values.
-	rows := cli.GetData(ds)
+	rows := cli.GetData(ds, header)
 	for _, values := range rows {
 		writer.Write(values)
 	}
@@ -192,15 +192,15 @@ func (cli *CLI) FormatTable(data []byte) string {
 	buf := new(bytes.Buffer)
 
 	// Set header.
-	keys := cli.GetKeys(ds)
+	header := cli.GetHeader(ds)
 
 	table := tablewriter.NewWriter(buf)
-	table.SetHeader(keys)
+	table.SetHeader(header.GetKeys())
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
 
 	// Set data.
-	rows := cli.GetData(ds)
+	rows := cli.GetData(ds, header)
 	table.AppendBulk(rows)
 
 	table.Render()
@@ -269,7 +269,7 @@ func (header *Header) AddChildKey(parentKey, childKey string) {
 	}
 }
 
-// GetKeys returns string array of keys.
+// GetHeader returns string array of keys.
 func (header *Header) GetKeys() []string {
 	var timingKeys []string
 	for _, timingKey := range header.TimingKeys {
@@ -279,8 +279,8 @@ func (header *Header) GetKeys() []string {
 	return append(header.PropertyKeys, timingKeys...)
 }
 
-// GetKeys returns a slice of keys.
-func (cli *CLI) GetKeys(records []*RecordData) []string {
+// GetHeader returns header data for table.
+func (cli *CLI) GetHeader(records []*RecordData) Header {
 	var header Header
 
 	// Add property keys.
@@ -299,27 +299,55 @@ func (cli *CLI) GetKeys(records []*RecordData) []string {
 			}
 		}
 	}
-	return header.GetKeys()
+	return header
 }
 
 // GetData returns table data.
-func (cli *CLI) GetData(ds interface{}) [][]string {
+func (cli *CLI) GetData(records []*RecordData, header Header) [][]string {
+	naWord := "n/a"
 	var data [][]string
-	//if s, ok := ds.([]interface{}); ok {
-	//	for _, d := range s {
-	//		var values []string
-	//		if m, ok := d.(map[string]interface{}); ok {
-	//			for _, key := range schema.Formatter {
-	//				val := m[key]
-	//				if val == nil {
-	//					val = 0.0
-	//				}
-	//				strValue := fmt.Sprint(val)
-	//				values = append(values, strValue)
-	//			}
-	//		}
-	//		data = append(data, values)
-	//	}
-	//}
+
+	for _, record := range records {
+		// Get property data.
+		var values []string
+		for _, propertyKey := range header.PropertyKeys {
+			for _, property := range record.Properties {
+				if property.Name == propertyKey {
+					values = append(values, fmt.Sprint(property.Value))
+				}
+			}
+		}
+
+		// Get timing data.
+		for _, timingKey := range header.TimingKeys {
+			// Get parent data.
+			parentKey := timingKey.ParentKey
+			parentFound := false
+			for _, timing := range record.Timings {
+				if timing.Name == parentKey {
+					parentFound = true
+					values = append(values, fmt.Sprint(timing.Value))
+				}
+			}
+			if !parentFound {
+				values = append(values, naWord)
+			}
+
+			// Get child data.
+			for _, childKey := range timingKey.ChildKeys {
+				childFound := false
+				for _, timing := range record.Timings {
+					if timing.Name == childKey {
+						childFound = true
+						values = append(values, fmt.Sprint(timing.Value))
+					}
+				}
+				if !childFound {
+					values = append(values, naWord)
+				}
+			}
+		}
+		data = append(data, values)
+	}
 	return data
 }
