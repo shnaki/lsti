@@ -96,30 +96,30 @@ type JsonData struct {
 // NormalizeRecords normalizes records for json output.
 func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []interface{} {
 	type jsonOut0 struct {
-		Timings []*Timing `json:"timings"`
-	}
-	type jsonOut1 struct {
 		File    string    `json:"file"`
 		Timings []*Timing `json:"timings"`
 	}
+	type jsonOut1 struct {
+		jsonOut0
+		ElapsedTime string `json:"elapsedTime"`
+		Version     string `json:"version"`
+		SvnVersion  int64  `json:"svnVersion"`
+		Platform    string `json:"platform"`
+		Compiler    string `json:"compiler"`
+	}
 	type jsonOut2 struct {
-		File     string    `json:"file"`
-		Version  string    `json:"version"`
-		Revision int64     `json:"revision"`
-		Timings  []*Timing `json:"timings"`
+		jsonOut1
+		Os        string `json:"os"`
+		InputFile string `json:"inputFile"`
+		Hostname  string `json:"hostname"`
 	}
 	type jsonOut3 struct {
-		File       string    `json:"file"`
-		Version    string    `json:"version"`
-		Revision   int64     `json:"revision"`
-		Platform   string    `json:"platform"`
-		Os         string    `json:"os"`
-		Compiler   string    `json:"compiler"`
-		Hostname   string    `json:"hostname"`
-		Precision  string    `json:"precision"`
-		SvnVersion int64     `json:"svnVersion"`
-		InputFile  string    `json:"inputFile"`
-		Timings    []*Timing `json:"timings"`
+		jsonOut2
+		Revision          int64  `json:"revision"`
+		Precision         string `json:"precision"`
+		LicensedTo        string `json:"licensedTo"`
+		IssuedBy          string `json:"issuedBy"`
+		NormalTermination bool   `json:"normalTermination"`
 	}
 
 	dataType := opts.Out.Target
@@ -148,36 +148,40 @@ func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []interface{
 			}
 		})
 
-		switch verbosity {
-		case 0:
-			jsonOut = jsonOut0{
-				Timings: timings,
+		jso0 := jsonOut0{
+			File:    record.File,
+			Timings: timings,
+		}
+		jsonOut = jso0
+		if verbosity >= 1 {
+			jso1 := jsonOut1{
+				jsonOut0:    jso0,
+				ElapsedTime: record.ElapsedTime,
+				Version:     record.Version,
+				SvnVersion:  record.SvnVersion,
+				Platform:    record.Platform,
+				Compiler:    record.Compiler,
 			}
-		case 1:
-			jsonOut = jsonOut1{
-				File:    record.File,
-				Timings: timings,
-			}
-		case 2:
-			jsonOut = jsonOut2{
-				File:     record.File,
-				Version:  record.Version,
-				Revision: record.Revision,
-				Timings:  timings,
-			}
-		case 3:
-			jsonOut = jsonOut3{
-				File:       record.File,
-				Version:    record.Version,
-				Revision:   record.Revision,
-				Platform:   record.Platform,
-				Os:         record.Os,
-				Compiler:   record.Compiler,
-				Hostname:   record.Hostname,
-				Precision:  record.Precision,
-				SvnVersion: record.SvnVersion,
-				InputFile:  record.InputFile,
-				Timings:    timings,
+			jsonOut = jso1
+			if verbosity >= 2 {
+				jso2 := jsonOut2{
+					jsonOut1:  jso1,
+					Os:        record.Os,
+					InputFile: record.InputFile,
+					Hostname:  record.Hostname,
+				}
+				jsonOut = jso2
+				if verbosity >= 3 {
+					jso3 := jsonOut3{
+						jsonOut2:          jso2,
+						Revision:          record.Revision,
+						Precision:         record.Precision,
+						LicensedTo:        record.LicensedTo,
+						IssuedBy:          record.IssuedBy,
+						NormalTermination: record.NormalTermination,
+					}
+					jsonOut = jso3
+				}
 			}
 		}
 		jsonSet = append(jsonSet, &jsonOut)

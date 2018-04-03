@@ -30,7 +30,7 @@ type Output struct {
 	Query   string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
 	Quiet   bool   `short:"q" long:"quiet" description:"Suppress all normal output"`
 	Target  string `short:"t" long:"target" description:"Target value used for aggregation" choice:"cpusec" choice:"pcpu" choice:"clocksec" choice:"pclock" default:"clocksec"`
-	Verbose []bool `short:"v" long:"verbose" description:"Show verbose information, this option can be specified multiple times\n-v: Show message file path \n-vv Show LS-DYNA module information\n-vvv: Show other execution environment"`
+	Verbose []bool `short:"v" long:"verbose" description:"Output verbose information, this option can be specified multiple times\n-v:   + LS-DYNA module information and elapsed time\n-vv:  + Output execution environment\n-vvv: + Output more information"`
 }
 
 // CLI is the command line object.

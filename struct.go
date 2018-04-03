@@ -109,15 +109,21 @@ func (parent *Parent) ForEachChildren(cb func(*Child, int)) {
 
 // Record represents the data set parsed from a LS-DYNA message file.
 type Record struct {
-	File                                        string
+	File string
+
 	Version                                     string
 	Revision                                    int64
 	Date, Time                                  string
 	LicensedTo, IssuedBy                        string
 	Platform, Os, Compiler, Hostname, Precision string
 	SvnVersion                                  int64
-	InputFile                                   string
-	Parents                                     []*Parent
+
+	InputFile string
+
+	NormalTermination bool
+	ElapsedTime       string
+
+	Parents []*Parent
 }
 
 // GetNumParents returns the number of parents in this record.
