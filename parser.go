@@ -134,7 +134,7 @@ func (cli *CLI) ParseMessageFile(schema *Schema, file string) (*Record, error) {
 
 		// Search for footer information.
 		if end {
-			if strings.HasPrefix(line, " N o r m a l  t e r m i n a t i o n") {
+			if strings.HasPrefix(line, " N o r m a l    t e r m i n a t i o n") {
 				record.NormalTermination = true
 				continue
 			}
