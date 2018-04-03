@@ -11,23 +11,22 @@ import (
 	"time"
 )
 
-// ParseMessageFiles parses LS-DYNA message files (e.g. messag, mes****) and return Records.
-func (cli *CLI) ParseMessageFiles(files []string) (*Schema, []*Record, error) {
+// ParseMessageFiles parses LS-DYNA message files (e.g. messag, mes****) and return records.
+func (cli *CLI) ParseMessageFiles(files []string) ([]*Record, error) {
 	sort.Strings(files)
 	var records []*Record
-	schema := Schema{}
 	for _, file := range files {
-		record, err := cli.ParseMessageFile(&schema, file)
+		record, err := cli.ParseMessageFile(file)
 		if err != nil {
 			fmt.Fprintln(cli.errStream, err)
 		}
 		records = append(records, record)
 	}
-	return &schema, records, nil
+	return records, nil
 }
 
-// ParseMessageFile parses LS-DYNA message file (e.g. messag, mes****) and return Record.
-func (cli *CLI) ParseMessageFile(schema *Schema, file string) (*Record, error) {
+// ParseMessageFile parses LS-DYNA message file (e.g. messag, mes****) and return record.
+func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 	fp, err := os.Open(filepath.FromSlash(file))
 	if err != nil {
 		return nil, err
@@ -125,10 +124,10 @@ func (cli *CLI) ParseMessageFile(schema *Schema, file string) (*Record, error) {
 			clockPercent, _ := parseFloat(runes, 56, 67)
 			if isParent {
 				// Parent
-				currentParent = record.AddParent(schema, name, cpuSec, cpuPercent, clockSec, clockPercent)
+				currentParent = record.AddParent(name, cpuSec, cpuPercent, clockSec, clockPercent)
 			} else {
 				// Child
-				currentParent.AddChild(schema, name, cpuSec, cpuPercent, clockSec, clockPercent)
+				currentParent.AddChild(name, cpuSec, cpuPercent, clockSec, clockPercent)
 			}
 		}
 

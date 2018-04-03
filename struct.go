@@ -1,55 +1,8 @@
 package main
 
-import (
-	"path"
-	"strings"
-	"unicode"
-)
-
-// A Schema stores table format.
-type Schema struct {
-	Formatter []string
-	Names     map[string]string
-}
-
-// AddPath adds path to table.
-func (schema *Schema) AddPath(path string) {
-	found := false
-	for _, p := range schema.Formatter {
-		if p == path {
-			found = true
-			break
-		}
-	}
-	if !found {
-		schema.Formatter = append(schema.Formatter, path)
-	}
-}
-
-func (schema *Schema) normalizePath(path string) string {
-	elements := strings.Split(path, "/")
-	for i, element := range elements {
-		parts := strings.Fields(element)
-		for i, part := range parts {
-			runes := []rune(part)
-			runes[0] = unicode.ToUpper(runes[0])
-			parts[i] = string(runes)
-		}
-		str := strings.Join(parts, "")
-		str = strings.Replace(str, ".", "", -1)
-		elements[i] = str
-	}
-	normalizedPath := strings.Join(elements, "/")
-	if schema.Names == nil {
-		schema.Names = make(map[string]string, 20)
-	}
-	schema.Names[normalizedPath] = path
-	return normalizedPath
-}
-
 // A Data represents the timing information parsed from LS-DYNA message file.
 type Data struct {
-	Name, Path                                 string
+	Name                                       string
 	CpuSec, CpuPercent, ClockSec, ClockPercent float64
 }
 
@@ -79,19 +32,15 @@ type Parent struct {
 	Children []*Child
 }
 
-// AddChild adds child data, and register path to Schema.
-func (parent *Parent) AddChild(schema *Schema, name string, cpuSec, cpuPercent, clockSec, clockPercent float64) *Child {
-	dataPath := path.Join(parent.Path, name)
-	dataPath = schema.normalizePath(dataPath)
+// AddChild adds child data to parent's children.
+func (parent *Parent) AddChild(name string, cpuSec, cpuPercent, clockSec, clockPercent float64) *Child {
 	child := Child{}
 	child.Name = name
-	child.Path = dataPath
 	child.CpuSec = cpuSec
 	child.CpuPercent = cpuPercent
 	child.ClockSec = clockSec
 	child.ClockPercent = clockPercent
 	parent.Children = append(parent.Children, &child)
-	schema.AddPath(child.Path)
 	return &child
 }
 
@@ -183,17 +132,14 @@ func (record *Record) ForEachChild(cb func(interface{}, int)) {
 	})
 }
 
-// AddParent adds parent data, and register path to Schema.
-func (record *Record) AddParent(schema *Schema, name string, cpuSec, cpuPercent, clockSec, clockPercent float64) *Parent {
-	dataPath := schema.normalizePath(name)
+// AddParent adds parent data to record.
+func (record *Record) AddParent(name string, cpuSec, cpuPercent, clockSec, clockPercent float64) *Parent {
 	parent := Parent{}
 	parent.Name = name
-	parent.Path = dataPath
 	parent.CpuSec = cpuSec
 	parent.CpuPercent = cpuPercent
 	parent.ClockSec = clockSec
 	parent.ClockPercent = clockPercent
 	record.Parents = append(record.Parents, &parent)
-	schema.AddPath(parent.Path)
 	return &parent
 }

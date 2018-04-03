@@ -12,8 +12,8 @@ import (
 )
 
 // Write outputs result to stdout and file.
-func (cli *CLI) Write(schema *Schema, records []*Record) error {
-	ds := cli.NormalizeRecords(schema, records)
+func (cli *CLI) Write(records []*Record) error {
+	ds := cli.NormalizeRecords(records)
 
 	data, err := json.MarshalIndent(ds, "", "  ")
 	if err != nil {
@@ -35,11 +35,11 @@ func (cli *CLI) Write(schema *Schema, records []*Record) error {
 	case "json":
 		str = string(data) + "\n"
 	case "csv":
-		str = cli.FormatSeparatedValues(data, schema, ',', true)
+		str = cli.FormatSeparatedValues(data, ',', true)
 	case "tsv":
-		str = cli.FormatSeparatedValues(data, schema, '	', false)
+		str = cli.FormatSeparatedValues(data, '	', false)
 	case "table":
-		str = cli.FormatTable(data, schema)
+		str = cli.FormatTable(data)
 	}
 
 	// Print to stdout.
@@ -97,7 +97,7 @@ type JsonData struct {
 }
 
 // NormalizeRecords normalizes records for json output.
-func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []interface{} {
+func (cli *CLI) NormalizeRecords(records []*Record) []interface{} {
 	dataType := opts.Out.Target
 	var jsonSet []interface{}
 	verbosity := len(opts.Out.Verbose)
@@ -157,7 +157,7 @@ func (cli *CLI) NormalizeRecords(schema *Schema, records []*Record) []interface{
 }
 
 // FormatSeparatedValues formats output data to CSV (with keys) or TSV (without keys) format.
-func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator rune, withKeys bool) string {
+func (cli *CLI) FormatSeparatedValues(data []byte, separator rune, withKeys bool) string {
 	str := ""
 	var ds []*RecordData
 	json.Unmarshal(data, &ds)
@@ -173,7 +173,7 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 	}
 
 	// Write values.
-	rows := cli.GetData(ds, schema)
+	rows := cli.GetData(ds)
 	for _, values := range rows {
 		writer.Write(values)
 	}
@@ -184,7 +184,7 @@ func (cli *CLI) FormatSeparatedValues(data []byte, schema *Schema, separator run
 }
 
 // FormatTable formats output data to ASCII table format.
-func (cli *CLI) FormatTable(data []byte, schema *Schema) string {
+func (cli *CLI) FormatTable(data []byte) string {
 	str := ""
 	var ds []*RecordData
 	json.Unmarshal(data, &ds)
@@ -200,7 +200,7 @@ func (cli *CLI) FormatTable(data []byte, schema *Schema) string {
 	table.SetCenterSeparator("|")
 
 	// Set data.
-	rows := cli.GetData(ds, schema)
+	rows := cli.GetData(ds)
 	table.AppendBulk(rows)
 
 	table.Render()
@@ -303,23 +303,23 @@ func (cli *CLI) GetKeys(records []*RecordData) []string {
 }
 
 // GetData returns table data.
-func (cli *CLI) GetData(ds interface{}, schema *Schema) [][]string {
+func (cli *CLI) GetData(ds interface{}) [][]string {
 	var data [][]string
-	if s, ok := ds.([]interface{}); ok {
-		for _, d := range s {
-			var values []string
-			if m, ok := d.(map[string]interface{}); ok {
-				for _, key := range schema.Formatter {
-					val := m[key]
-					if val == nil {
-						val = 0.0
-					}
-					strValue := fmt.Sprint(val)
-					values = append(values, strValue)
-				}
-			}
-			data = append(data, values)
-		}
-	}
+	//if s, ok := ds.([]interface{}); ok {
+	//	for _, d := range s {
+	//		var values []string
+	//		if m, ok := d.(map[string]interface{}); ok {
+	//			for _, key := range schema.Formatter {
+	//				val := m[key]
+	//				if val == nil {
+	//					val = 0.0
+	//				}
+	//				strValue := fmt.Sprint(val)
+	//				values = append(values, strValue)
+	//			}
+	//		}
+	//		data = append(data, values)
+	//	}
+	//}
 	return data
 }

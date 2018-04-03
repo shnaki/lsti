@@ -96,10 +96,10 @@ lsti ./**/mes* --query "[].{path:File, elem:ElementProcessing}"
 	}
 
 	// Parse files.
-	schema, records, _ := cli.ParseMessageFiles(files)
+	records, _ := cli.ParseMessageFiles(files)
 
 	// Output parsed data in specified format.
-	if err := cli.Write(schema, records); err != nil {
+	if err := cli.Write(records); err != nil {
 		fmt.Fprintln(cli.errStream, err)
 		return ExitCodeError
 	}
