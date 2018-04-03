@@ -142,8 +142,8 @@ func (cli *CLI) ParseMessageFile(schema *Schema, file string) (*Record, error) {
 				hours, _ := parseInt([]rune(line), 30, 33)
 				minutes, _ := parseInt([]rune(line), 40, 43)
 				seconds, _ := parseInt([]rune(line), 48, 52)
-				d := (time.Duration(hours)*time.Hour +
-					time.Duration(minutes)*time.Minute + time.Duration(seconds)*time.Second)
+				d := time.Duration(hours)*time.Hour +
+					time.Duration(minutes)*time.Minute + time.Duration(seconds)*time.Second
 				record.ElapsedTime = d.String()
 				continue
 			}
