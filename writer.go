@@ -243,8 +243,6 @@ func (cli *CLI) FormatTable(data []byte, schema *Schema) string {
 
 // GetKeys returns a slice of keys.
 func (cli *CLI) GetKeys(schema *Schema, ds []map[string]interface{}) []string {
-	//var keys []string
-
 	schema.Formatter = make([]string, 0)
 	forEachKey(ds, func(key string, value interface{}, nodeType int) {
 		switch nodeType {
