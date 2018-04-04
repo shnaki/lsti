@@ -33,6 +33,19 @@ func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 	}
 	defer fp.Close()
 
+	// Translate file path.
+	abs, err := filepath.Abs(file)
+	if err == nil {
+		if opts.Out.Abs {
+			file = abs
+		} else if opts.Out.Relative != "" {
+			rel, err := filepath.Rel(filepath.FromSlash(opts.Out.Relative), abs)
+			if err == nil {
+				file = rel
+			}
+		}
+	}
+
 	record := Record{File: file}
 	scanner := bufio.NewScanner(fp)
 	start := false
