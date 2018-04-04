@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/jessevdk/go-flags"
-	"github.com/mattn/go-zglob"
 	"io"
 	"os"
+
+	"github.com/jessevdk/go-flags"
+	"github.com/mattn/go-zglob"
 )
 
 // Exit codes are int values that represent an exit code for a particular error.

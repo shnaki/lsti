@@ -5,10 +5,11 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"github.com/jmespath/go-jmespath"
-	"github.com/olekukonko/tablewriter"
 	"io/ioutil"
 	"os"
+
+	"github.com/jmespath/go-jmespath"
+	"github.com/olekukonko/tablewriter"
 )
 
 // Write outputs result to stdout and file.
