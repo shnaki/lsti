@@ -4,7 +4,13 @@
 
 ## Description
 
+Extracts timing information from LS-DYNA message file
+
 ## Usage
+
+```bash
+$ lsti mes0000
+```
 
 ## Install
 
@@ -23,6 +29,11 @@ $ go get -d github.com/tenchanome/lsti
 1. Run test suite with the `go test ./...` command and confirm that it passes
 1. Run `gofmt -s`
 1. Create a new Pull Request
+
+## TODO
+
+- Write tests
+- Refactor code
 
 ## Author
 
