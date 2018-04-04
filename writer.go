@@ -200,6 +200,7 @@ func (cli *CLI) FormatTable(data []byte) string {
 
 	table := tablewriter.NewWriter(buf)
 	table.SetHeader(header.GetKeys())
+	table.SetAutoFormatHeaders(false)
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
 
