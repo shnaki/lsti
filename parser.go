@@ -143,8 +143,8 @@ func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 			name := parseName(runes, 0, 25)
 			cpuSec, _ := parseFloat(runes, 25, 36)
 			cpuPercent, _ := parseFloat(runes, 36, 44)
-			clockSec, _ := parseFloat(runes, 44, 59)
-			clockPercent, _ := parseFloat(runes, 56, 67)
+			clockSec, _ := parseFloat(runes, 44, 58)
+			clockPercent, _ := parseFloat(runes, 58, 66)
 			if isParent {
 				// Parent
 				currentParent = record.AddParent(name, cpuSec, cpuPercent, clockSec, clockPercent)
