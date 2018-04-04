@@ -306,7 +306,7 @@ func (cli *CLI) GetHeader(records []*RecordData) Header {
 
 // GetData returns table data.
 func (cli *CLI) GetData(records []*RecordData, header Header) [][]string {
-	naWord := "n/a"
+	naWord := opts.Out.Miss
 	var data [][]string
 
 	for _, record := range records {
