@@ -143,12 +143,14 @@ func (cli *CLI) NormalizeRecords(records []*Record) []interface{} {
 				timings = append(timings, &timing)
 				return
 			}
-			if c, ok := d.(*Child); ok {
-				js := JsonData{}
-				js.Name = c.Name
-				js.Value = c.GetValue(dataType)
-				pt.Details = append(pt.Details, &js)
-				return
+			if !opts.Out.Simple {
+				if c, ok := d.(*Child); ok {
+					js := JsonData{}
+					js.Name = c.Name
+					js.Value = c.GetValue(dataType)
+					pt.Details = append(pt.Details, &js)
+					return
+				}
 			}
 		})
 		jsonOut.Timings = timings
