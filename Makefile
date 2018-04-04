@@ -66,6 +66,6 @@ build-linux-386:
 	GOOS=linux GOARCH=386 $(GOBUILD) -v
 
 ## Show help
-help:
+help: setup
 	@make2help $(MAKEFILE_LIST)
 .PHONY: help
