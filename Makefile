@@ -9,8 +9,6 @@ BIN_DIR=bin
 
 ## Set up dev tools
 setup:
-	go get github.com/golang/lint/golint
-	go get golang.org/x/tools/cmd/goimports
 	go get github.com/Songmu/make2help/cmd/make2help
 .PHONY: setup
 
