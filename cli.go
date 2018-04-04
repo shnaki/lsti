@@ -30,7 +30,7 @@ type Output struct {
 	Query   string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
 	Quiet   bool   `short:"q" long:"quiet" description:"Suppress all normal output"`
 	Target  string `short:"t" long:"target" description:"Target value used for aggregation" choice:"cpusec" choice:"pcpu" choice:"clocksec" choice:"pclock" default:"clocksec"`
-	Verbose []bool `short:"v" long:"verbose" description:"Output verbose information, this option can be specified multiple times\n-v:   + LS-DYNA module information and elapsed time\n-vv:  + Output execution environment\n-vvv: + Output more information"`
+	Verbose []bool `short:"v" long:"verbose" description:"Output verbose information, this option can be specified multiple times\n-v:   + Output LS-DYNA module information and elapsed time\n-vv:  + Output execution environment\n-vvv: + Output more information"`
 }
 
 // CLI is the command line object.
@@ -50,9 +50,9 @@ lsti extracts timing information from LS-DYNA message file(s) (e.g. messag, mes*
 File path accepts Unix style glob pattern (e.g. mes*, ./**/messag)
 
 Example:
-lsti messag
+lsti mes0000
 lsti ./**/mes* -o csv -f timigns.csv
-lsti ./**/mes* --query "[].{path:File, elem:ElementProcessing}"
+lsti ./**/messag -vvv --query "[].{properties:properties[?name=='file' || name=='elapsedTime']}"
   `
 
 	arguments, err := parser.Parse()
