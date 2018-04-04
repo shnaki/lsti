@@ -38,7 +38,12 @@ func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 	start := false
 	end := false
 	count := 0
+	const (
+		SMP = "smp"
+		MPP = "mpp"
+	)
 	var currentParent *Parent
+	var moduleType string
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -47,6 +52,11 @@ func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 			if strings.Contains(line, "Version : ") {
 				record.Version = parseText([]rune(line), 18, 34)
 				record.Date = parseText([]rune(line), 34, 55)
+				if strings.Contains(record.Version, "smp") {
+					moduleType = SMP
+				} else if strings.Contains(record.Version, "mpp") {
+					moduleType = MPP
+				}
 				continue
 			}
 			if strings.Contains(line, "Revision: ") {
@@ -133,6 +143,14 @@ func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 
 		// Search for footer information.
 		if end {
+			if moduleType == SMP && strings.HasPrefix(line, " Number of CPU's") {
+				record.NumCpus, _ = parseInt([]rune(line), 16, 21)
+				continue
+			}
+			if moduleType == MPP && strings.HasPrefix(line, " MPP execution with") {
+				record.NumCpus, _ = parseInt([]rune(line), 18, 27)
+				continue
+			}
 			if strings.HasPrefix(line, " N o r m a l    t e r m i n a t i o n") {
 				record.NormalTermination = true
 				continue

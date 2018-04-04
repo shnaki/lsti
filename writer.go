@@ -116,6 +116,7 @@ func (cli *CLI) NormalizeRecords(records []*Record) []interface{} {
 			properties = append(properties, &JsonData{Name: "compiler", Value: record.Compiler})
 		}
 		if verbosity >= 2 {
+			properties = append(properties, &JsonData{Name: "NumCpus", Value: record.NumCpus})
 			properties = append(properties, &JsonData{Name: "os", Value: record.Os})
 			properties = append(properties, &JsonData{Name: "inputFile", Value: record.InputFile})
 			properties = append(properties, &JsonData{Name: "hostname", Value: record.Hostname})

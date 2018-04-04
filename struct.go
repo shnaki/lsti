@@ -69,6 +69,7 @@ type Record struct {
 
 	InputFile string
 
+	NumCpus           int64
 	NormalTermination bool
 	ElapsedTime       string
 
