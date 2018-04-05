@@ -53,9 +53,10 @@ lsti extracts timing information from LS-DYNA message file(s) (e.g. messag, mes*
 File path accepts Unix style glob pattern (e.g. mes*, ./**/messag)
 
 Example:
-lsti mes0000
-lsti ./**/mes* -o csv -f timigns.csv
-lsti ./**/messag -vvv --query "[].{properties:properties[?name=='file' || name=='elapsedTime']}"
+  lsti mes0000
+  lsti ./**/mes* -f csv > timigns.csv
+  lsti ./**/mes* -f table > timigns.md
+  lsti ./**/messag -vvv --query "[].{properties:properties[?name=='file' || name=='elapsedTime']}"
   `
 
 	arguments, err := parser.Parse()
