@@ -28,9 +28,9 @@ func (cli *CLI) Write(records []*Record) error {
 		}
 	}
 
-	// Format output string to specified format.
+	// Format result string to specified format.
 	str := ""
-	switch opts.Out.Output {
+	switch opts.Out.Format {
 	case "json":
 		str = string(data) + "\n"
 	case "csv":

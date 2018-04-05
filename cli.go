@@ -28,7 +28,7 @@ type Misc struct {
 type Output struct {
 	Abs      bool   `short:"a" long:"absolute" description:"Use absolute path for \"file\" property"`
 	Miss     string `short:"m" long:"missing" description:"Replace missing values with specified string" default:"n/a"`
-	Output   string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"table"`
+	Format   string `short:"f" long:"format" description:"Output format" choice:"csv" choice:"json" choice:"table" choice:"tsv" default:"table"`
 	Query    string `long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
 	Relative string `short:"r" long:"relative" description:"Use relative path for \"file\" property (relative to specified path)\nIf \"-a, --absolute\" option is specified, this option will be ignored"`
 	Simple   bool   `short:"s" long:"simple" description:"Suppress detail timing information (e.g. Solids, Shells)"`
