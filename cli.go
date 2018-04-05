@@ -67,16 +67,16 @@ Example:
 		return ExitCodeOK
 	}
 
+	// If "-h, --help" flag is specified, show help and exit.
+	if opts.Misc.Help {
+		parser.WriteHelp(os.Stdout)
+		return ExitCodeOK
+	}
+
 	// If arguments' length is zero, show help and exit with error.
 	if len(arguments) == 0 {
 		parser.WriteHelp(os.Stdout)
 		return ExitCodeError
-	}
-
-	// If "-h, --help" flag is specified, show help and exit.
-	if len(arguments) == 0 || opts.Misc.Help {
-		parser.WriteHelp(os.Stdout)
-		return ExitCodeOK
 	}
 
 	// Expand glob pattern.
