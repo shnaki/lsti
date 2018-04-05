@@ -342,9 +342,13 @@ func (cli *CLI) GetData(records []*RecordData, header Header) [][]string {
 			for _, childKey := range timingKey.ChildKeys {
 				childFound := false
 				for _, timing := range record.Timings {
-					if timing.Name == childKey {
-						childFound = true
-						values = append(values, fmt.Sprint(timing.Value))
+					if timing.Name == parentKey {
+						for _, detail := range timing.Details {
+							if detail.Name == childKey {
+								childFound = true
+								values = append(values, fmt.Sprint(detail.Value))
+							}
+						}
 					}
 				}
 				if !childFound {
