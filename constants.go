@@ -14,6 +14,7 @@ const (
 
 	// (-f, --format) option
 	Csv   = "csv"
+	Html  = "html"
 	Json  = "json"
 	Table = "table"
 	Tsv   = "tsv"

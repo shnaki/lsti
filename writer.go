@@ -10,6 +10,7 @@ import (
 
 	"github.com/jmespath/go-jmespath"
 	"github.com/olekukonko/tablewriter"
+	"github.com/russross/blackfriday"
 )
 
 // Write results to stdout.
@@ -33,14 +34,16 @@ func (cli *CLI) Write(records []*Record) error {
 	// Format result string to specified format.
 	str := ""
 	switch opts.Out.Output {
-	case Json:
-		str = string(data) + "\n"
 	case Csv:
 		str = cli.FormatSeparatedValues(data, ',', true)
-	case Tsv:
-		str = cli.FormatSeparatedValues(data, '	', false)
+	case Html:
+		str = cli.FormatHtml(data)
+	case Json:
+		str = string(data) + "\n"
 	case Table:
 		str = cli.FormatTable(data)
+	case Tsv:
+		str = cli.FormatSeparatedValues(data, '	', false)
 	}
 
 	// Write to stdout.
@@ -372,4 +375,11 @@ func (cli *CLI) GetData(records []*RecordData, header Header) [][]string {
 		data = append(data, values)
 	}
 	return data
+}
+
+// FormatHtml formats output data to html table.
+func (cli *CLI) FormatHtml(data []byte) string {
+	var md = cli.FormatTable(data)
+	html := blackfriday.MarkdownCommon([]byte(md))
+	return string(html)
 }
