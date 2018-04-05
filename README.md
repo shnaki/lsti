@@ -17,7 +17,7 @@ $ lsti mes0000
 To install, use `go get`:
 
 ```bash
-$ go get -d github.com/tenchanome/lsti
+$ go get github.com/tenchanome/lsti
 ```
 
 ## Contribution
