@@ -99,7 +99,11 @@ func (cli *CLI) NormalizeRecords(records []*Record) []interface{} {
 		properties := make([]*JsonData, 0)
 		properties = append(properties, &JsonData{Name: "file", Value: record.File})
 		if verbosity >= 1 {
-			properties = append(properties, &JsonData{Name: "elapsedTime", Value: record.ElapsedTime})
+			if opts.Out.Duration == Human {
+				properties = append(properties, &JsonData{Name: "elapsedTime", Value: formatSeconds(record.ElapsedTime)})
+			} else {
+				properties = append(properties, &JsonData{Name: "elapsedTime", Value: record.ElapsedTime})
+			}
 			properties = append(properties, &JsonData{Name: "version", Value: record.Version})
 			properties = append(properties, &JsonData{Name: "svnVersion", Value: record.SvnVersion})
 			properties = append(properties, &JsonData{Name: "platform", Value: record.Platform})

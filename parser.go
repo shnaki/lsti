@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // ParseMessageFiles parses LS-DYNA message files (e.g. messag, mes****) and return records.
@@ -169,12 +169,13 @@ func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 				continue
 			}
 			if strings.HasPrefix(line, " Elapsed time") {
-				hours, _ := parseInt([]rune(line), 30, 33)
-				minutes, _ := parseInt([]rune(line), 40, 43)
-				seconds, _ := parseInt([]rune(line), 48, 52)
-				d := time.Duration(hours)*time.Hour +
-					time.Duration(minutes)*time.Minute + time.Duration(seconds)*time.Second
-				record.ElapsedTime = d.String()
+				// Use regexp because Elapsed time is not a fixed format.
+				r := regexp.MustCompile(`^ Elapsed time\s*(\d+)\s*seconds`)
+				results := r.FindStringSubmatch(line)
+				if len(results) == 2 {
+					seconds, _ := strconv.ParseFloat(results[1], 64)
+					record.ElapsedTime = seconds
+				}
 				continue
 			}
 		}

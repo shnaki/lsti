@@ -71,7 +71,7 @@ type Record struct {
 
 	NumCpus           int64
 	NormalTermination bool
-	ElapsedTime       string
+	ElapsedTime       float64
 
 	Parents []*Parent
 }
