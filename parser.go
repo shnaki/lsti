@@ -113,6 +113,10 @@ func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 				record.InputFile = parseText([]rune(line), 13, 84)
 				continue
 			}
+			if moduleType == MPP && strings.HasPrefix(line, " MPP execution with") {
+				record.NumCpus, _ = parseInt([]rune(line), 19, 27)
+				continue
+			}
 		}
 
 		// Search for timing information block.
@@ -158,10 +162,6 @@ func (cli *CLI) ParseMessageFile(file string) (*Record, error) {
 		if end {
 			if moduleType == SMP && strings.HasPrefix(line, " Number of CPU's") {
 				record.NumCpus, _ = parseInt([]rune(line), 16, 21)
-				continue
-			}
-			if moduleType == MPP && strings.HasPrefix(line, " MPP execution with") {
-				record.NumCpus, _ = parseInt([]rune(line), 18, 27)
 				continue
 			}
 			if strings.HasPrefix(line, " N o r m a l    t e r m i n a t i o n") {
