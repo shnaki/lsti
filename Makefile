@@ -18,6 +18,7 @@ deps:
 	$(GOGET) github.com/jmespath/go-jmespath
 	$(GOGET) github.com/mattn/go-zglob
 	$(GOGET) github.com/olekukonko/tablewriter
+	$(GOGET) github.com/russross/blackfriday
 .PHONY: deps
 
 ## Run tests and build binary
