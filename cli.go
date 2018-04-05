@@ -61,6 +61,12 @@ Example:
 		return ExitCodeError
 	}
 
+	// Show version and exit.
+	if opts.Misc.Version {
+		fmt.Fprintf(cli.outStream, "%s version %s\n", Name, Version)
+		return ExitCodeOK
+	}
+
 	// If arguments' length is zero, show help and exit with error.
 	if len(arguments) == 0 {
 		parser.WriteHelp(os.Stdout)
@@ -70,12 +76,6 @@ Example:
 	// If "-h, --help" flag is specified, show help and exit.
 	if len(arguments) == 0 || opts.Misc.Help {
 		parser.WriteHelp(os.Stdout)
-		return ExitCodeOK
-	}
-
-	// Show version and exit.
-	if opts.Misc.Version {
-		fmt.Fprintf(cli.outStream, "%s version %s\n", Name, Version)
 		return ExitCodeOK
 	}
 
