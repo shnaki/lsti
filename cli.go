@@ -49,7 +49,8 @@ func (cli *CLI) Run(args []string) int {
 	parser.Name = Name
 	parser.Usage = `[OPTIONS] [FILE]...
 
-lsti extracts timing information from LS-DYNA message file(s) (e.g. messag, mes****)
+lsti extracts timing information from LS-DYNA message file(s) (e.g. messag, mes****),
+and display results in the specified format
 File path accepts Unix style glob pattern (e.g. mes*, ./**/messag)
 
 Example:
