@@ -89,14 +89,14 @@ lsti ./**/messag -vvv --query "[].{properties:properties[?name=='file' || name==
 	for _, pattern := range arguments {
 		matches, err := zglob.Glob(pattern)
 		if err != nil {
-			fmt.Fprintf(cli.errStream, "Invalid file path or glob pattern: %s", pattern)
+			fmt.Fprintf(cli.errStream, "Invalid file path or glob pattern: %s\n", pattern)
 		}
 		files = append(files, matches...)
 	}
 
 	// If no files found, return error code and exit.
 	if len(files) == 0 {
-		fmt.Fprintf(cli.errStream, "No files found matching: %s", arguments)
+		fmt.Fprintf(cli.errStream, "No files found matching: %s\n", arguments)
 		return ExitCodeError
 	}
 
