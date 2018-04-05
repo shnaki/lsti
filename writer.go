@@ -5,6 +5,8 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"math"
+	"time"
 
 	"github.com/jmespath/go-jmespath"
 	"github.com/olekukonko/tablewriter"
@@ -30,14 +32,14 @@ func (cli *CLI) Write(records []*Record) error {
 
 	// Format result string to specified format.
 	str := ""
-	switch opts.Out.Format {
-	case "json":
+	switch opts.Out.Output {
+	case Json:
 		str = string(data) + "\n"
-	case "csv":
+	case Csv:
 		str = cli.FormatSeparatedValues(data, ',', true)
-	case "tsv":
+	case Tsv:
 		str = cli.FormatSeparatedValues(data, '	', false)
-	case "table":
+	case Table:
 		str = cli.FormatTable(data)
 	}
 
@@ -125,7 +127,12 @@ func (cli *CLI) NormalizeRecords(records []*Record) []interface{} {
 			if p, ok := d.(*Parent); ok {
 				timing := TimingData{}
 				timing.Name = p.Name
-				timing.Value = p.GetValue(dataType)
+				value := p.GetValue(dataType)
+				if opts.Out.Duration == Human && (dataType == CpuSec || dataType == ClockSec) {
+					timing.Value = formatSeconds(value)
+				} else {
+					timing.Value = value
+				}
 				timing.Details = make([]*JsonData, 0)
 				pt = &timing
 				timings = append(timings, &timing)
@@ -135,7 +142,12 @@ func (cli *CLI) NormalizeRecords(records []*Record) []interface{} {
 				if c, ok := d.(*Child); ok {
 					js := JsonData{}
 					js.Name = c.Name
-					js.Value = c.GetValue(dataType)
+					value := c.GetValue(dataType)
+					if opts.Out.Duration == Human && (dataType == CpuSec || dataType == ClockSec) {
+						js.Value = formatSeconds(value)
+					} else {
+						js.Value = value
+					}
 					pt.Details = append(pt.Details, &js)
 					return
 				}
@@ -146,6 +158,15 @@ func (cli *CLI) NormalizeRecords(records []*Record) []interface{} {
 		jsonSet = append(jsonSet, &jsonOut)
 	}
 	return jsonSet
+}
+
+func formatSeconds(seconds float64) string {
+	d := time.Duration(seconds) * time.Second
+	h := int(math.Floor(d.Hours()))
+	m := int(math.Floor(d.Minutes())) - h*60
+	s := int(math.Floor(d.Seconds())) - h*3600 - m*60
+	str := fmt.Sprintf("%d:%02d:%02d", h, m, s)
+	return str
 }
 
 // FormatSeparatedValues formats output data to CSV (with keys) or TSV (without keys) format.

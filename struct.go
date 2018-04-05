@@ -9,13 +9,13 @@ type Data struct {
 // GetValue returns value used for aggregation.
 func (data *Data) GetValue(dataType string) float64 {
 	switch dataType {
-	case "cpusec":
+	case CpuSec:
 		return data.CpuSec
-	case "pcpu":
+	case CpuPercent:
 		return data.CpuPercent
-	case "clocksec":
+	case ClockSec:
 		return data.ClockSec
-	case "pclock":
+	case ClockPercent:
 		return data.ClockPercent
 	}
 	return 0.0
