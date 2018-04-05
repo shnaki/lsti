@@ -33,13 +33,25 @@ func (cli *CLI) Write(records []*Record) error {
 
 	// Format result string to specified format.
 	str := ""
-	switch opts.Out.Output {
+	f := opts.Out.Output
+	if f == "" {
+		if len(records) == 1 {
+			// Simple is default for single file.
+			f = Simple
+		} else {
+			// Table is default for multiple files.
+			f = Table
+		}
+	}
+	switch f {
 	case Csv:
 		str = cli.FormatSeparatedValues(data, ',', true)
 	case Html:
 		str = cli.FormatHtml(data)
 	case Json:
 		str = string(data) + "\n"
+	case Simple:
+		str = cli.FormatSimple(data)
 	case Table:
 		str = cli.FormatTable(data)
 	case Tsv:
@@ -382,4 +394,35 @@ func (cli *CLI) FormatHtml(data []byte) string {
 	var md = cli.FormatTable(data)
 	html := blackfriday.MarkdownCommon([]byte(md))
 	return string(html)
+}
+
+// FormatSimple formats output data to simple lines per data.
+func (cli *CLI) FormatSimple(data []byte) string {
+	str := ""
+	var records []*RecordData
+	json.Unmarshal(data, &records)
+
+	for i, record := range records {
+		// Get property lines.
+		for _, property := range record.Properties {
+			val := fmt.Sprint(property.Value)
+			str += fmt.Sprintf("%s: %s\n", property.Name, val)
+		}
+
+		// Get timing lines.
+		for _, timing := range record.Timings {
+			val := fmt.Sprint(timing.Value)
+			str += fmt.Sprintf("%s: %s\n", timing.Name, val)
+			for _, detail := range timing.Details {
+				val := fmt.Sprint(detail.Value)
+				str += fmt.Sprintf("  %s: %s\n", detail.Name, val)
+			}
+		}
+
+		// Add blank line.
+		if i != len(records)-1 {
+			str += "\n"
+		}
+	}
+	return str
 }

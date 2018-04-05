@@ -13,11 +13,12 @@ const (
 	Seconds = "seconds"
 
 	// (-f, --format) option
-	Csv   = "csv"
-	Html  = "html"
-	Json  = "json"
-	Table = "table"
-	Tsv   = "tsv"
+	Csv    = "csv"
+	Html   = "html"
+	Json   = "json"
+	Simple = "simple"
+	Table  = "table"
+	Tsv    = "tsv"
 
 	// (-t, --target) option
 	CpuSec       = "cpusec"

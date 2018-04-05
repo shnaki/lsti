@@ -23,7 +23,7 @@ type Output struct {
 	Abs      bool   `short:"a" long:"absolute" description:"Use absolute path for \"file\" property"`
 	Duration string `short:"d" long:"duration" description:"Duration format\nhuman-readable means [h]:mm:ss, and rounds down floating point values" choice:"human-readable" choice:"seconds" default:"human-readable"`
 	Miss     string `short:"m" long:"missing" description:"Replace missing values with specified string" default:"n/a"`
-	Output   string `short:"o" long:"output" description:"Output format" choice:"csv" choice:"html" choice:"json" choice:"table" choice:"tsv" default:"table"`
+	Output   string `short:"o" long:"output" description:"Output format\n(default: simple for single file, table for multiple files)" choice:"csv" choice:"html" choice:"json" choice:"simple" choice:"table" choice:"tsv"`
 	Query    string `short:"q" long:"query" description:"JMESPath query string\nSee http://jmespath.org/ for more information and examples"`
 	Relative string `short:"r" long:"relative" description:"Use relative path for \"file\" property (relative to specified path)\nIf \"-a, --absolute\" option is specified, this option will be ignored"`
 	Simple   bool   `short:"s" long:"simple" description:"Suppress detail timing information (e.g. Solids, Shells)"`
