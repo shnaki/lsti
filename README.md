@@ -12,7 +12,7 @@ Extracts timing information from LS-DYNA message file
 $ lsti mes0000
 ```
 
-## Install
+## Installation
 
 To install, use `go get`:
 
