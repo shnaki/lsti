@@ -5,14 +5,12 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
 
 	"github.com/jmespath/go-jmespath"
 	"github.com/olekukonko/tablewriter"
 )
 
-// Write outputs result to stdout and file.
+// Write results to stdout.
 func (cli *CLI) Write(records []*Record) error {
 	ds := cli.NormalizeRecords(records)
 
@@ -43,18 +41,8 @@ func (cli *CLI) Write(records []*Record) error {
 		str = cli.FormatTable(data)
 	}
 
-	// Print to stdout.
-	if !opts.Out.Quiet {
-		fmt.Fprint(cli.outStream, str)
-	}
-
-	// Write to file.
-	filename := opts.Out.File
-	if filename != "" {
-		content := []byte(str)
-		ioutil.WriteFile(filename, content, os.ModePerm)
-	}
-
+	// Write to stdout.
+	fmt.Fprint(cli.outStream, str)
 	return nil
 }
 
