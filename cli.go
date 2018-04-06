@@ -50,8 +50,8 @@ File path accepts Unix style glob pattern (e.g. mes*, ./**/messag)
 
 Example:
   lsti mes0000
-  lsti ./**/mes* -o csv > timigns.csv
-  lsti ./**/mes* -o table > timigns.md
+  lsti ./**/mes* -o csv > timings.csv
+  lsti ./**/mes* -o table > timings.md
   lsti ./**/messag -vvv --query "[].{properties:properties[?name=='file' || name=='elapsedTime']}"
   `
 
