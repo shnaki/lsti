@@ -3,7 +3,7 @@ package main
 // Name and Version are showed in help message and version message.
 const (
 	Name    = "lsti"
-	Version = "1.0.0"
+	Version = "1.0.1"
 )
 
 // Exit codes are int values that represent an exit code for a particular error.
