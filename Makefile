@@ -13,14 +13,21 @@ help: setup-help
 	@make2help $(MAKEFILE_LIST)
 .PHONY: help
 
+
+# Setup
 ## Set up dev tools
-setup: setup-help setup-goxz
+setup: setup-help setup-goxz setup-ghr
 .PHONY: setup
 
 ## Set up goxz
 setup-goxz:
 	$(GOGET) github.com/Songmu/goxz/cmd/goxz
 .PHONY: setup-goxz
+
+## Set up ghr
+setup-ghr:
+	$(GOGET) github.com/tcnksm/ghr
+.PHONY: setup-ghr
 
 ## Set up make2help
 setup-help:
@@ -36,6 +43,8 @@ deps:
 	$(GOGET) github.com/russross/blackfriday
 .PHONY: deps
 
+
+# Run
 ## Run tests and build binary
 all: test build
 .PHONY: all
@@ -80,7 +89,18 @@ build-linux-amd64:
 build-linux-386:
 	GOOS=linux GOARCH=386 $(GOBUILD) -v
 
-## Release binaries
-release: deps setup-goxz
+
+# Release
+## Package binaries
+package: deps setup-goxz
 	goxz -pv=$(VERSION) -os=windows,darwin,linux -arch=amd64,386 -d=$(DIST_DIR)
+.PHONY: package
+
+## Release binaries with ghr
+ghr:
+	ghr $(VERSION) $(DIST_DIR)
+.PHONY: ghr
+
+## Crossbuild and release packages
+release: clean package ghr
 .PHONY: release
