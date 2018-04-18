@@ -1,16 +1,31 @@
 # Go parameters
 NAME=lsti
+VERSION=1.0.1
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
-BIN_DIR=bin
+DIST_DIR=dist
+
+## Show help
+help: setup-help
+	@make2help $(MAKEFILE_LIST)
+.PHONY: help
 
 ## Set up dev tools
-setup:
-	go get github.com/Songmu/make2help/cmd/make2help
+setup: setup-help setup-goxz
 .PHONY: setup
+
+## Set up goxz
+setup-goxz:
+	$(GOGET) github.com/Songmu/goxz/cmd/goxz
+.PHONY: setup-goxz
+
+## Set up make2help
+setup-help:
+	$(GOGET) github.com/Songmu/make2help/cmd/make2help
+.PHONY: setup-help
 
 ## Install dependencies
 deps:
@@ -38,6 +53,7 @@ test:
 ## Remove binaries
 clean:
 	$(GOCLEAN)
+	rm -rf $(DIST_DIR)
 .PHONY: clean
 
 ## Builds the binary and executes the application consequently
@@ -64,7 +80,7 @@ build-linux-amd64:
 build-linux-386:
 	GOOS=linux GOARCH=386 $(GOBUILD) -v
 
-## Show help
-help: setup
-	@make2help $(MAKEFILE_LIST)
-.PHONY: help
+## Release binaries
+release: deps setup-goxz
+	goxz -pv=$(VERSION) -os=windows,darwin,linux -arch=amd64,386 -d=$(DIST_DIR)
+.PHONY: release

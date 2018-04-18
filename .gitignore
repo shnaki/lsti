@@ -1,5 +1,6 @@
 .idea
 *.test
+dist
 examples
 lsti
 *.exe
