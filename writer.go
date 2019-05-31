@@ -392,7 +392,7 @@ func (cli *CLI) GetData(records []*RecordData, header Header) [][]string {
 // FormatHtml formats output data to html table.
 func (cli *CLI) FormatHtml(data []byte) string {
 	var md = cli.FormatTable(data)
-	html := blackfriday.MarkdownCommon([]byte(md))
+	html := blackfriday.Run([]byte(md))
 	return string(html)
 }
 
