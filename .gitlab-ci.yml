@@ -10,3 +10,5 @@ build-project:
   stage: build
   script:
     - go build ./...
+  artifacts:
+    untracked: true
