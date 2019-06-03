@@ -1,0 +1,12 @@
+image: golang:1.12
+
+variables:
+  GO111MODULE: 'on'
+
+stages:
+  - build
+
+build-project:
+  stage: build
+  script:
+    - go build ./...

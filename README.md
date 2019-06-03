@@ -17,12 +17,12 @@ $ lsti mes0000
 To install, use `go get`:
 
 ```bash
-$ go get github.com/tenchanome/lsti
+$ go get gitlab.com/tenchanome/lsti
 ```
 
 ## Contribution
 
-1. Fork ([https://github.com/tenchanome/lsti/fork](https://github.com/tenchanome/lsti/fork))
+1. Fork ([https://gitlab.com/tenchanome/lsti/fork](https://gitlab.com/tenchanome/lsti/fork))
 1. Create a feature branch
 1. Commit your changes
 1. Rebase your local changes against the master branch
@@ -37,4 +37,4 @@ $ go get github.com/tenchanome/lsti
 
 ## Author
 
-[tenchanome](https://github.com/tenchanome)
+[tenchanome](https://gitlab.com/tenchanome)
