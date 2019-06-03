@@ -22,12 +22,12 @@ $ go get gitlab.com/tenchanome/lsti
 
 ## Contribution
 
-1. Fork ([https://gitlab.com/tenchanome/lsti/fork](https://gitlab.com/tenchanome/lsti/fork))
+1. Fork
 1. Create a feature branch
 1. Commit your changes
 1. Rebase your local changes against the master branch
 1. Run test suite with the `go test ./...` command and confirm that it passes
-1. Run `gofmt -s`
+1. Run `go fmt ./...`
 1. Create a new Pull Request
 
 ## TODO
