@@ -1,6 +1,6 @@
 # Go parameters
 NAME=lsti
-VERSION=1.0.1
+VERSION=1.0.2
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
