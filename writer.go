@@ -10,7 +10,7 @@ import (
 
 	"github.com/jmespath/go-jmespath"
 	"github.com/olekukonko/tablewriter"
-	"github.com/russross/blackfriday"
+	"github.com/russross/blackfriday/v2"
 )
 
 // Write results to stdout.
