@@ -8,6 +8,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mattn/go-zglob v0.0.1
 	github.com/olekukonko/tablewriter v0.0.1
-	github.com/russross/blackfriday/v2 v2.0.1
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	gopkg.in/russross/blackfriday.v2 v2.0.1
 )
+
+replace gopkg.in/russross/blackfriday.v2 v2.0.1 => github.com/russross/blackfriday/v2 v2.0.1
