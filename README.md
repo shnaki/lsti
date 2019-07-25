@@ -34,7 +34,3 @@ $ go get gitlab.com/tenchanome/lsti
 
 - Write tests
 - Refactor code
-
-## Author
-
-[tenchanome](https://gitlab.com/tenchanome)
